@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import nltk
 import json
 import time
+import math
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
@@ -44,7 +45,7 @@ corpus = "WEBPAGES_RAW"
 def create_index():
     with open(corpus + '/bookkeeping.json') as f:
         loaded_json = json.loads(f.read())
-    i = 1
+    num_of_docs_parsed = 1
     tokens_holder = {}
     stop_words = set(stopwords.words('english'))
     for x in loaded_json:
@@ -79,20 +80,31 @@ def create_index():
                         tokens_holder[it][x][0] += v
 
         # Batch write to mongoDB every 15 files
-        if i % 15 == 0:
-            batch_write(tokens_holder)
+        if num_of_docs_parsed % 15 == 0:
+            batch_write(tokens_holder, num_of_docs_parsed)
             tokens_holder = {}
-        i += 1
+        num_of_docs_parsed += 1
 
 
 # Batch write dictionary to MongoDB database
-def batch_write(tokens_holder):
+def batch_write(tokens_holder, num_of_docs):
     for key, value in tokens_holder.items():
         result = db.inverted_index.find_one({key: {"$exists": True}})
         if result:
             updated_value = {**result[key], **value}
+            document_frequency = len(updated_value)
+
+            # calculate idf
+            idf = math.log10(num_of_docs/document_frequency)
+
+            db.idf_index.find_one_and_update({key: {"$exists": True}}, {"$set": {key: idf}})
             db.inverted_index.update_one({"_id": result["_id"]}, {"$set": {key: updated_value}})
         else:
+            document_frequency = len(value)
+
+            # calculate idf
+            idf = math.log10(num_of_docs/document_frequency)
+            db.idf_index.insert_one({key: idf})
             db.inverted_index.insert_one({key: value})
 
 
@@ -101,4 +113,5 @@ start_time = time.time()
 # Build the inverted index
 create_index()
 
-print("Index creation took: " + time.time() - start_time)
+time_elapsed = time.time() - start_time
+print("Index creation took: " + str(time_elapsed))
