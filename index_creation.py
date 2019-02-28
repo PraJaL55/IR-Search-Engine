@@ -52,13 +52,15 @@ def create_index():
         print("Indexing file: " + x)
         html_page = open(corpus + "/" + x, encoding="utf8")
         soup = BeautifulSoup(html_page, 'html.parser')
+        if soup.find('html')==None and soup.find('body')==None and soup.find('title')==None:
+            continue
         for script in soup(["script", "style"]):
             script.extract()
         tokens = tokenizer.tokenize(soup.get_text(separator=' ').lower())
 
         # Remove stop words
         for j in range(len(tokens)):
-            if tokens[j] in stop_words:
+            if tokens[j] in stop_words or tokens[j].isdigit():
                 continue
             if tokens[j] not in tokens_holder:
                 tokens_holder[tokens[j]] = {}
