@@ -2,7 +2,6 @@ from pymongo import MongoClient
 import nltk
 import json
 import time
-import math
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
@@ -23,6 +22,7 @@ heading_tags = {'h1': 6, 'h2': 5, 'h3': 4, 'h4': 3, 'h5': 2, 'h6': 1, 'b': 6, 'e
 
 # Root corpus directory
 corpus = "WEBPAGES_RAW"
+
 
 # Expected dictionary
 # tokens = {
@@ -52,7 +52,7 @@ def create_index():
         print("Indexing file: " + x)
         html_page = open(corpus + "/" + x, encoding="utf8")
         soup = BeautifulSoup(html_page, 'html.parser')
-        if soup.find('html')==None and soup.find('body')==None and soup.find('title')==None:
+        if soup.find('html') is None and soup.find('body') is None and soup.find('title') is None:
             continue
         for script in soup(["script", "style"]):
             script.extract()
@@ -83,30 +83,19 @@ def create_index():
 
         # Batch write to mongoDB every 15 files
         if num_of_docs_parsed % 15 == 0:
-            batch_write(tokens_holder, num_of_docs_parsed)
+            batch_write(tokens_holder)
             tokens_holder = {}
         num_of_docs_parsed += 1
 
 
 # Batch write dictionary to MongoDB database
-def batch_write(tokens_holder, num_of_docs):
+def batch_write(tokens_holder):
     for key, value in tokens_holder.items():
         result = db.inverted_index.find_one({key: {"$exists": True}})
         if result:
             updated_value = {**result[key], **value}
-            document_frequency = len(updated_value)
-
-            # calculate idf
-            idf = math.log10(num_of_docs/document_frequency)
-
-            db.idf_index.find_one_and_update({key: {"$exists": True}}, {"$set": {key: idf}})
             db.inverted_index.update_one({"_id": result["_id"]}, {"$set": {key: updated_value}})
         else:
-            document_frequency = len(value)
-
-            # calculate idf
-            idf = math.log10(num_of_docs/document_frequency)
-            db.idf_index.insert_one({key: idf})
             db.inverted_index.insert_one({key: value})
 
 
