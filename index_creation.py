@@ -23,6 +23,7 @@ heading_tags = {'h1': 6, 'h2': 5, 'h3': 4, 'h4': 3, 'h5': 2, 'h6': 1, 'b': 6, 'e
 # Root corpus directory
 corpus = "WEBPAGES_RAW"
 
+num_of_docs_parsed = 0
 
 # Expected dictionary
 # tokens = {
@@ -45,7 +46,7 @@ corpus = "WEBPAGES_RAW"
 def create_index():
     with open(corpus + '/bookkeeping.json') as f:
         loaded_json = json.loads(f.read())
-    num_of_docs_parsed = 1
+    global num_of_docs_parsed
     tokens_holder = {}
     stop_words = set(stopwords.words('english'))
     for x in loaded_json:
@@ -57,6 +58,7 @@ def create_index():
         for script in soup(["script", "style"]):
             script.extract()
         tokens = tokenizer.tokenize(soup.get_text(separator=' ').lower())
+        tokens = [ps.stem(tk) for tk in tokens]
 
         # Remove stop words
         for j in range(len(tokens)):
@@ -77,6 +79,7 @@ def create_index():
             tag = soup.find_all(k)
             for content in tag:
                 important_tokens = tokenizer.tokenize(content.get_text(separator=' ').lower())
+                important_tokens = [ps.stem(tk) for tk in important_tokens]
                 for it in important_tokens:
                     if it in tokens_holder:
                         tokens_holder[it][x][0] += v
@@ -105,4 +108,5 @@ start_time = time.time()
 create_index()
 
 time_elapsed = time.time() - start_time
+print("Files Parsed: "+str(num_of_docs_parsed))
 print("Index creation took: " + str(time_elapsed))
