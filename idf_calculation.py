@@ -7,7 +7,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client.IR_search_engine
 
 # Parse through all tokens and calculate idf
-number_of_documents = db.inverted_index.count_documents({})
+number_of_documents = 34567
 
 start_time = time.time()
 
