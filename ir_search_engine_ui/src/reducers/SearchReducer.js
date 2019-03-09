@@ -1,10 +1,7 @@
 import * as SearchActions from '../actions/SearchActions';
 
 const initialState = {
-    search: {
-        'www.google.com': ['Google', 'this is home for google'],
-        'www.facebook.com': ['Facebook Inc', 'this is home for facebook']
-    },
+    search: {},
     isSearching: false
 };
 

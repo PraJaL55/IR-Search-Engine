@@ -35,8 +35,30 @@ const styles = {
         left: '50%',
         color: '#00695C',
     },
+    searchBox:{
+        position: 'fixed',
+        top: '12%',
+        paddingLeft: '2%',
+        paddingRight: '2%',
+        width: '80%'
+    },
     searchInfo: {
+        marginTop: '20px'
+    },
+    title: {
+        padding: '5px',
+    },
+    link: {
+        textDecoration: 'none',
+        color: '#c00',
 
+        '&:hover': {
+            color: '#ff4f30' 
+        }
+    },
+    snippet: {
+        padding: '5px',
+        color: '#303030'
     }
 };
 
@@ -65,17 +87,22 @@ class Search extends Component {
                     this.props.isSearching ? <CircularProgress className={this.props.classes.circularProgress} /> : '' 
                 }
                 </div>
-                <div>
+                <div className = {this.props.classes.searchBox}>
                 {
-                    this.props.search ? 
-                        <Paper className={this.props.classes.searchInfo} elevation={1}>
-                            <Typography variant="h5" component="h3">
-                                This is a sheet of paper.
+                    this.props.search ?
+                    
+                    Object.entries(this.props.search).map(([url, list], index) => {
+                        return(
+                        <Paper className={this.props.classes.searchInfo} elevation={1} key = {index} >
+                            <Typography variant="h5" component="h4" className= {this.props.classes.title} key = {index}>
+                                <a target="_blank" href = {url} className = {this.props.classes.link}>{list[0]}</a> 
                             </Typography>
-                            <Typography component="p">
-                                Paper can be used to build surface or other elements for your application.
+                            <Typography variant="h6" component="p" className= {this.props.classes.snippet} key={index}>
+                               {list[1]}
                             </Typography>
                         </Paper>
+                        )
+                    })    
                     : ''
                 }
                 </div>

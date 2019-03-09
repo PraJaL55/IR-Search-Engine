@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 const mapStateToProps = state => {
     return {
-        searchResult: state.searchResult,
+        search: state.search,
         isSearching: state.isSearching,
     };
 }
