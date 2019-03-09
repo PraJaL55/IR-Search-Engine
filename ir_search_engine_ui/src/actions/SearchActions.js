@@ -11,24 +11,30 @@ export function receiveIsSearching(isSearching){
 }  
 
 
-function receiveSearch(searchResult){
+function receiveSearch(search){
     return { 
         type: RECEIVE_SEARCH, 
-        searchResult 
+        search 
     };
 } 
 
 
-export function requestSearch(){
+export function requestSearch(searchQuery){
     return async (dispatch) => {
         try{
-            const response = await fetch(configConstants.fetchSearchUrl);
+            const response = await fetch(configConstants.fetchSearchUrl,
+                {  
+                    method: 'POST',
+                    body: searchQuery
+                }
+            );
             let json = await response.json();
             dispatch(receiveIsSearching(false));
             return dispatch(receiveSearch(json));
         } 
         catch(error)
         {
+            console.log(searchQuery)
             console.error('Error fetching search-results', error);
         }
     }

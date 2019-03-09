@@ -10,7 +10,7 @@ export function searchReducer(state = initialState, action){
         case SearchActions.RECEIVE_SEARCH:
             return {
                 ...state,
-                products: action.searchResult,
+                search: action.search,
             };
         case SearchActions.RECEIVE_IS_SEARCHING:
             return {

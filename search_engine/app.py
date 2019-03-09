@@ -1,4 +1,5 @@
 from flask import request
+from flask_cors import CORS
 from flask import Flask
 from collections import OrderedDict
 import nltk
@@ -7,6 +8,7 @@ from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
 app = Flask(__name__)
+cors=CORS(app)
 ps = nltk.PorterStemmer()
 client = MongoClient('mongodb://localhost:27017/')
 db = client.IR_search_engine
@@ -85,6 +87,7 @@ def process_multiple_word(search_query):
             break   
     return convert_to_json(output_list)
 
+CORS(app, resources=r'/*')
 @app.route("/get_search_results", methods=['POST'])
 def hello():
     search_query = request.data.decode("utf-8")

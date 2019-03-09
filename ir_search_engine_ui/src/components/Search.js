@@ -36,11 +36,12 @@ const styles = {
         color: '#00695C',
     },
     searchBox:{
-        position: 'fixed',
-        top: '12%',
+        position: 'relative',
+        marginTop: '8%',
         paddingLeft: '2%',
         paddingRight: '2%',
-        width: '80%'
+        width: '80%',
+        margin: '10px'
     },
     searchInfo: {
         marginTop: '20px'
@@ -65,20 +66,26 @@ const styles = {
 class Search extends Component {
     constructor(props) {
         super(props);
+        this.state = {searchValue:''}
         this.searchResult = this.searchResult.bind(this);
     }
 
-    searchResult() {
+    handleChange(e) {
+        this.setState({ searchValue: e.target.value });
+     }
+
+    searchResult(searchQuery) {
         this.props.receiveIsSearching(true);
+        this.props.requestSearch(searchQuery);
     }
     
     render(){
         return(
             <div>
                 <Paper className={classNames(this.props.classes.root, {
-                                                [this.props.classes.searchBoxAnimation]: this.props.isSearching === true})} elevation={1}>
-                    <InputBase className={this.props.classes.input} placeholder="Search ICS" />
-                    <IconButton className={this.props.classes.iconButton} aria-label="Search" onClick = {this.searchResult}>
+                                                [this.props.classes.searchBoxAnimation]: (this.props.isSearching === true || this.props.search)})} elevation={1}>
+                    <InputBase className={this.props.classes.input} placeholder="Search ICS" onChange={this.handleChange.bind(this)}  />
+                    <IconButton className={this.props.classes.iconButton} aria-label="Search" onClick = {() => this.searchResult(this.state.searchValue)}>
                         <SearchIcon />
                     </IconButton>
                 </Paper>
